@@ -166,9 +166,15 @@ SET( REQUIRED_LIBS
         user32
         imm32
         ole32
+        oleaut32
         uuid
         ws2_32
 )
+
+IF( ENABLE_UIA )
+    # uiautomationcore.dll ships with Windows; this is only its import library.
+    LIST( APPEND REQUIRED_LIBS uiautomationcore )
+ENDIF()
 
 IF( thorvg_support )
     LIST( APPEND REQUIRED_LIBS ${THORVG_LIBRARY} )

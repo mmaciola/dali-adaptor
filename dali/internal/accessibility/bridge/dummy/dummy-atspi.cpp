@@ -144,25 +144,3 @@ void ProxyAccessible::SetParent(Accessible* parent)
 }
 
 } //namespace DALI_NAMESPACE::Accessibility
-
-// ============================================================================
-// Bridge stubs
-// ============================================================================
-
-Dali::SharedPtr<Dali::Integration::Accessibility::Bridge> Dali::Integration::Accessibility::Bridge::GetCurrentBridge()
-{
-  return Dali::Accessibility::DummyBridge::GetInstance();
-}
-
-void Dali::Integration::Accessibility::Bridge::DisableAutoInit()
-{
-}
-
-void Dali::Integration::Accessibility::Bridge::EnableAutoInit()
-{
-}
-
-std::string Dali::Integration::Accessibility::Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId)
-{
-  return std::string{widgetInstanceId};
-}

@@ -21,6 +21,8 @@
 #include <dali-windows-dependencies.h>
 
 #define WIN_CALLBACK_EVENT 9999
+// Carries one accessibility request from a UI Automation RPC thread to the event thread.
+#define WIN_UIA_SYNC_EVENT 9998
 #define LC_MESSAGES 0
 
 #endif // DALI_ADAPTOR_PREPROCESSOR_DEFINITIONS_H

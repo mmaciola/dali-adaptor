@@ -32,6 +32,9 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/windows/event-system-win.h>
+#ifdef DALI_UIA_ENABLED
+#include <dali/internal/accessibility/bridge/windows/uia-accessibility.h>
+#endif
 
 namespace DALI_NAMESPACE
 {
@@ -56,6 +59,29 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     ExecuteWinCallback(static_cast<WinCallbackToken>(wParam));
     return 0;
   }
+
+#ifdef DALI_UIA_ENABLED
+  // A UI Automation client asks a window for a provider by sending WM_GETOBJECT. The
+  // providers handed out in reply are called on RPC threads, and send the work that has
+  // to read the scene graph back to this thread as WIN_UIA_SYNC_EVENT.
+  if(uMsg == WM_GETOBJECT)
+  {
+    intptr_t providerResult = 0;
+    if(Dali::Accessibility::Uia::HandleGetObject(reinterpret_cast<uintptr_t>(hWnd),
+                                                 static_cast<uintptr_t>(wParam),
+                                                 static_cast<intptr_t>(lParam),
+                                                 providerResult))
+    {
+      return static_cast<LRESULT>(providerResult);
+    }
+  }
+
+  if(uMsg == WIN_UIA_SYNC_EVENT)
+  {
+    Dali::Accessibility::Uia::ExecuteSyncRequest(static_cast<uintptr_t>(wParam));
+    return 0;
+  }
+#endif
 
   const auto windowHandle       = reinterpret_cast<WinWindowHandle>(hWnd);
   const auto previousWindowProc = WindowImpl::GetPreviousWindowProc(windowHandle);

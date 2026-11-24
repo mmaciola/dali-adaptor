@@ -42,6 +42,7 @@ ENDIF()
 OPTION(ENABLE_PKG_CONFIGURE     "Use pkgconfig" ON)
 OPTION(ENABLE_LINK_TEST         "Enable the link test" ON)
 OPTION(ENABLE_ATSPI             "Enable AT-SPI accessibility" ON)
+OPTION(ENABLE_UIA               "Enable UI Automation accessibility (Windows)" ON)
 OPTION(ENABLE_APPMODEL          "Enable AppModel" OFF)
 OPTION(ENABLE_ASAN              "Enable Asan" OFF)
 OPTION(ENABLE_TRACE             "Enable Trace" OFF)
@@ -293,6 +294,17 @@ IF( NOT gio_available OR MACOS_PROFILE OR WINDOWS_PROFILE OR ANDROID_PROFILE OR 
   SET( ENABLE_ATSPI OFF )
 ENDIF()
 
+# UI Automation is the accessibility framework built into Windows, and is reached through
+# uiautomationcore.dll, which ships with the system. It is the only backend a screen
+# reader on Windows talks to, and means nothing anywhere else.
+IF( NOT WIN32 )
+  SET( ENABLE_UIA OFF )
+ENDIF()
+
+IF( ENABLE_UIA )
+  ADD_DEFINITIONS("-DDALI_UIA_ENABLED")
+ENDIF()
+
 IF( ENABLE_VCONF )
   ADD_DEFINITIONS("-DVCONF_ENABLED")
 ENDIF()
@@ -355,8 +367,18 @@ INCLUDE( profiles/${PROFILE_LCASE}-profile.cmake )
 
 IF ( ENABLE_ATSPI )
   SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_bridge_src_files} )
+ELSEIF ( ENABLE_UIA )
+  # The UI Automation bridge replaces the AT-SPI one, but still needs the stubs for the
+  # parts of the tree that the AT-SPI bridge sources would otherwise implement.
+  SET( SOURCES ${SOURCES}
+       ${adaptor_accessibility_atspi_dummy_src_files}
+       ${adaptor_accessibility_uia_bridge_src_files}
+  )
 ELSE()
-  SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_dummy_src_files} )
+  SET( SOURCES ${SOURCES}
+       ${adaptor_accessibility_atspi_dummy_src_files}
+       ${adaptor_accessibility_atspi_dummy_bridge_src_files}
+  )
 ENDIF()
 
 IF( ENABLE_PKG_CONFIGURE )
@@ -939,6 +961,7 @@ MESSAGE( STATUS "Use pkg configure:                ${ENABLE_PKG_CONFIGURE}" )
 MESSAGE( STATUS "Use -Wall options:                ${ENABLE_WARNING_TO_ERROR}" )
 MESSAGE( STATUS "Enable link test:                 ${ENABLE_LINK_TEST}" )
 MESSAGE( STATUS "Enable AT-SPI:                    ${ENABLE_ATSPI}" )
+MESSAGE( STATUS "Enable UI Automation:             ${ENABLE_UIA}" )
 MESSAGE( STATUS "Enable AppModel:                  ${ENABLE_APPMODEL}" )
 MESSAGE( STATUS "Enable Asan:                      ${ENABLE_ASAN}" )
 MESSAGE( STATUS "Enable Trace:                     ${ENABLE_TRACE_STRING}" )

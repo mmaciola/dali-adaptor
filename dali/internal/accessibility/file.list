@@ -76,6 +76,20 @@ SET( adaptor_accessibility_atspi_dummy_src_files
     ${adaptor_accessibility_dir}/bridge/dummy/dummy-atspi.cpp
 )
 
+# The Bridge statics are kept apart from the other stubs so that a platform backend can
+# define them itself while still using the stubs. @see dummy/dummy-bridge.cpp
+SET( adaptor_accessibility_atspi_dummy_bridge_src_files
+    ${adaptor_accessibility_dir}/bridge/dummy/dummy-bridge.cpp
+)
+
+# module: accessibility, backend: windows UI Automation
+SET( adaptor_accessibility_uia_bridge_src_files
+    ${adaptor_accessibility_dir}/bridge/windows/uia-bridge.cpp
+    ${adaptor_accessibility_dir}/bridge/windows/uia-common.cpp
+    ${adaptor_accessibility_dir}/bridge/windows/uia-element-provider.cpp
+    ${adaptor_accessibility_dir}/bridge/windows/uia-mapping.cpp
+)
+
 # module: accessibility, backend: macos
 SET( adaptor_accessibility_macos_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
